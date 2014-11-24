@@ -18,10 +18,10 @@ $ vagrant up
 $ vagrant ssh
 
 # detect the public IP address of your machine
-ifconfig
+$ ifconfig
 
 # create a new unix- and samba-user
-sudo /vagrant/bin/user-new.sh
+$ sudo /vagrant/bin/user-new.sh
 ~~~
 
 ## Features
