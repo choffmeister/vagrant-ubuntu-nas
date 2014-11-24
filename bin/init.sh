@@ -29,8 +29,7 @@ mount -a
 
 # install plex server
 apt-get install -y avahi-daemon avahi-utils
-cd /tmp
-wget https://downloads.plex.tv/plex-media-server/0.9.11.1.678-c48ffd2/plexmediaserver_0.9.11.1.678-c48ffd2_amd64.deb
-dpkg -i plexmediaserver_0.9.11.1.678-c48ffd2_amd64.deb
+wget --quiet --output-document /tmp/plexmediaserver.deb https://downloads.plex.tv/plex-media-server/0.9.11.1.678-c48ffd2/plexmediaserver_0.9.11.1.678-c48ffd2_amd64.deb
+dpkg -i /tmp/plexmediaserver.deb
 
 exit 0
