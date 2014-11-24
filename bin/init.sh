@@ -22,7 +22,7 @@ done
 # create merged disk
 aptitude install -y mhddfs
 mkdir -p /mnt/data
-echo "mhddfs#/mnt/data1,/mnt/data2,/mnt/data3 /mnt/data fuse defaults,allow_other,nofail,noauto 0 0" >> /etc/fstab
+echo "mhddfs#/mnt/data1,/mnt/data2,/mnt/data3 /mnt/data fuse defaults,allow_other,nofail 0 0" >> /etc/fstab
 
 # mounting
 mount -a
