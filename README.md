@@ -7,19 +7,24 @@ This is a simple description of a [Vagrant](https://www.vagrantup.com) virtual m
 Clone this repository and fire up the Vagrant machine by running:
 
 ~~~ bash
+# clone this repo
 $ git clone https://github.com/choffmeister/vagrant-ubuntu-nas.git
 $ cd vagrant-ubuntu-nas
+
+# start and configure the virtual machine
 $ vagrant up
-~~~
 
-Now SSH into the machine and create a new user:
-
-~~~ bash
+# SSH into the machine
 $ vagrant ssh
-$ sudo /vagrant/bin/user-new.sh
+
+# detect the public IP address of your machine
+ifconfig
+
+# create a new unix- and samba-user
+sudo /vagrant/bin/user-new.sh
 ~~~
 
 ## Features
 
 * Simulates a three disk setup combined together to a single drive with [mhddfs](http://manpages.ubuntu.com/manpages/trusty/man1/mhddfs.1.html).
-* Installs [Plex Media Server](https://plex.tv/) - the web interface can be access by navigating to [http://localhost:32400/web]().
+* Installs [Plex Media Server](https://plex.tv/) - the web interface can be access by navigating via HTTP to port 32400 on your virtual machine.

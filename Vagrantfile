@@ -13,7 +13,7 @@ end
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "ubuntu/trusty64"
   config.vm.provider "virtualbox" do |vm|
-    vm.customize ["modifyvm", :id, "--cpus", 2, "--memory", "4096"]
+    vm.customize ["modifyvm", :id, "--cpus", 2, "--memory", "2048"]
     attach_hdd(vm, 1, 16 * 1024)
     attach_hdd(vm, 2, 16 * 1024)
     attach_hdd(vm, 3, 16 * 1024)
@@ -21,5 +21,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provision "shell", path: "bin/init.sh"
 
-  config.vm.network "forwarded_port", guest: 32400, host: 32400
+  config.vm.network "public_network"
 end
