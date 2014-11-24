@@ -8,7 +8,8 @@ apt-get install -y aptitude
 devs="/dev/sdb /dev/sdc /dev/sdd"
 i=1
 for dev in $devs; do
-  echo -e "d\nn\n\n\n\n\nw\nY\n" | gdisk "${dev}"
+  parted -s -- "${dev}" mklabel gpt
+  parted -a optimal -s -- "${dev}" mkpart primary 2048s -8192s
   mkfs.ext4 "${dev}1"
 
   uuid=$(blkid "${dev}1" | sed 's/.*UUID="\([^"]*\)".*/\1/')
@@ -22,5 +23,8 @@ done
 aptitude install -y mhddfs
 mkdir -p /mnt/data
 echo "mhddfs#/mnt/data1,/mnt/data2,/mnt/data3 /mnt/data fuse defaults,allow_other,nofail,noauto 0 0" >> /etc/fstab
+
+# mounting
+mount -a
 
 exit 0
