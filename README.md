@@ -12,8 +12,14 @@ $ cd vagrant-ubuntu-nas
 $ vagrant up
 ~~~
 
+Now SSH into the machine and create a new user:
+
+~~~ bash
+$ vagrant ssh
+$ sudo /vagrant/bin/user-new.sh
+~~~
+
 ## Features
 
 * Simulates a three disk setup combined together to a single drive with [mhddfs](http://manpages.ubuntu.com/manpages/trusty/man1/mhddfs.1.html).
-* Allows to import media for test purposes by putting files into the `media/` folder of this repository - the files are then accessible at `/vagrant/media/` from within the virtual machine.
 * Installs [Plex Media Server](https://plex.tv/) - the web interface can be access by navigating to [http://localhost:32400/web]().

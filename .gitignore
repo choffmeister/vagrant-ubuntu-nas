@@ -1,6 +1,2 @@
 # Vagrant target
 .vagrant/
-
-# Media content
-media/*
-!media/.gitkeep
