@@ -5,6 +5,7 @@ apt-get update
 apt-get install -y aptitude
 
 # format disks
+apt-get install -y acl
 devs="/dev/sdb /dev/sdc /dev/sdd"
 i=1
 for dev in $devs; do
@@ -14,7 +15,7 @@ for dev in $devs; do
 
   uuid=$(blkid "${dev}1" | sed 's/.*UUID="\([^"]*\)".*/\1/')
   mkdir -p "/mnt/data${i}"
-  echo "UUID=${uuid} /mnt/data${i} ext4 defaults 0 2" >> /etc/fstab
+  echo "UUID=${uuid} /mnt/data${i} ext4 defaults,acl 0 2" >> /etc/fstab
   mount "/mnt/data${i}"
 
   i=$((i+1))
@@ -34,10 +35,9 @@ mount /home
 
 # create media folder
 mkdir -p /mnt/data/media
-mkdir -p /mnt/data/media/movies
-mkdir -p /mnt/data/media/tvshows
-chown -R nobody:users /mnt/data/media
-chmod -R 0770 /mnt/data/media/*
+chmod -R 0770 /mnt/data/media
+setfacl -m g:users:rwx /mnt/data/media
+setfacl -dm g:users:rwx /mnt/data/media
 
 # install samba
 apt-get install -y samba-common samba
@@ -48,6 +48,7 @@ service samba restart
 apt-get install -y avahi-daemon avahi-utils
 wget --quiet --output-document /tmp/plexmediaserver.deb "https://downloads.plex.tv/plex-media-server/0.9.11.1.678-c48ffd2/plexmediaserver_0.9.11.1.678-c48ffd2_amd64.deb"
 dpkg -i /tmp/plexmediaserver.deb
-usermod -aG users plex
+setfacl -m u:plex:r-x /mnt/data/media
+setfacl -dm u:plex:r-x /mnt/data/media
 
 exit 0
