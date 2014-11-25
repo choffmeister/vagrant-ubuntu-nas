@@ -4,27 +4,21 @@
 apt-get update
 apt-get install -y aptitude
 
-# format disks
-apt-get install -y acl
+# create raid
+apt-get install -y mdadm acl
 devs="/dev/sdb /dev/sdc /dev/sdd"
 i=1
 for dev in $devs; do
   parted -s -- "${dev}" mklabel gpt
   parted -a optimal -s -- "${dev}" mkpart primary 2048s -8192s
-  mkfs.ext4 "${dev}1"
-
-  uuid=$(blkid "${dev}1" | sed 's/.*UUID="\([^"]*\)".*/\1/')
-  mkdir -p "/mnt/data${i}"
-  echo "UUID=${uuid} /mnt/data${i} ext4 defaults,acl 0 2" >> /etc/fstab
-  mount "/mnt/data${i}"
-
+  parted -s -- "${dev}" set 1 raid on
   i=$((i+1))
 done
-
-# create merged disk
-aptitude install -y mhddfs
+mdadm --create /dev/md0 --auto md --level=5 --raid-devices=3 /dev/sdb1 /dev/sdc1 /dev/sdd1
+mkfs.ext4 /dev/md0
 mkdir -p /mnt/data
-echo "mhddfs#/mnt/data1,/mnt/data2,/mnt/data3 /mnt/data fuse defaults,allow_other,nofail 0 0" >> /etc/fstab
+echo "/dev/md0 /mnt/data ext4 defaults,acl 0 2" >> /etc/fstab
+/usr/share/mdadm/mkconf > /etc/mdadm/mdadm.conf
 mount /mnt/data
 
 # create homes folder
