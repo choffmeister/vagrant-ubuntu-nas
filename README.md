@@ -17,9 +17,6 @@ $ vagrant up
 # SSH into the machine
 $ vagrant ssh
 
-# detect the public IP address of your machine
-$ ifconfig
-
 # create a new unix- and samba-user
 $ sudo /vagrant/bin/user-new.sh
 ~~~
@@ -27,4 +24,4 @@ $ sudo /vagrant/bin/user-new.sh
 ## Features
 
 * Simulates a three disk setup combined together to a single drive with [mhddfs](http://manpages.ubuntu.com/manpages/trusty/man1/mhddfs.1.html).
-* Installs [Plex Media Server](https://plex.tv/) - the web interface can be access by navigating via HTTP to port 32400 on your virtual machine.
+* Installs [Plex Media Server](https://plex.tv/) - the web interface can be access by navigating your browser to [http://10.0.23.5:32400/web]().
