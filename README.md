@@ -17,6 +17,13 @@ $ vagrant up
 # SSH into the machine
 $ vagrant ssh
 
+# optional: install plexmediaserver
+$ sudo /vagrant/bin/install-plexmediaserver.sh
+~~~
+
+You can create user accounts by:
+
+~~~ bash
 # create a new unix- and samba-user
 $ sudo /vagrant/bin/user-new.sh
 ~~~
