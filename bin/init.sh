@@ -34,7 +34,7 @@ chown root:users /mnt/data/media
 
 # install samba
 apt-get install -y samba-common samba
-cp /vagrant/conf/smb.conf /etc/samba/smb.conf
+cat /vagrant/conf/samba/smb.conf > /etc/samba/smb.conf
 service samba restart
 
 exit 0
