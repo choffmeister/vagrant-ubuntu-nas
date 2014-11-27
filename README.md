@@ -17,11 +17,8 @@ $ vagrant up
 # SSH into the machine
 $ vagrant ssh
 
-# optional: install plexmediaserver
-$ sudo /vagrant/bin/install-plexmediaserver.sh
-
-# optional: install l2tp/ipsec server
-$ sudo /vagrant/bin/install-l2tp-ipsec.sh
+# configure machine
+$ sudo /vagrant/bin/configure.sh
 ~~~
 
 You can create user accounts by:
