@@ -115,12 +115,26 @@ then
   ipsec verify
 fi
 
-# create a user
-echo "New username:"
-read USERNAME
-echo "${USERNAME}'s Password:"
-read -s PASSWORD
-echo -e "${PASSWORD}\n${PASSWORD}\nY\n" | adduser --disabled-login --shell /bin/false --gid 100 --gecos "" --home "/mnt/data/homes/${USERNAME}" "${USERNAME}"
-echo -e "${PASSWORD}\n${PASSWORD}\n" | smbpasswd -a "${USERNAME}"
+# create a users
+echo "Create a new users (leave username empty to not create more users):"
+while true
+do
+  read -p "Username: " USERNAME
+  if [[ $USERNAME =~ ^.+$ ]]
+  then
+    read -s -p "Password: " PASSWORD; echo
+    read -s -p "Password (repeat): " PASSWORD2; echo
+
+    if [ "$PASSWORD" == "$PASSWORD2" ]
+    then
+      echo -e "${PASSWORD}\n${PASSWORD}\nY\n" | adduser --disabled-login --shell /bin/false --gid 100 --gecos "" --home "/mnt/data/homes/${USERNAME}" "${USERNAME}"
+      echo -e "${PASSWORD}\n${PASSWORD}\n" | smbpasswd -a "${USERNAME}"
+    else
+      echo "The passwords did NOT match!"
+    fi
+  else
+    break
+  fi
+done
 
 exit 0
