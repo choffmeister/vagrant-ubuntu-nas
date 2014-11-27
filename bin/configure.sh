@@ -1,49 +1,69 @@
 #!/bin/bash
 
 # create raid
-apt-get install -y mdadm
 devs="/dev/sdb /dev/sdc /dev/sdd"
-for dev in $devs; do
-  parted -s -- "${dev}" mklabel gpt
-  parted -a optimal -s -- "${dev}" mkpart primary 2048s -8192s
-  parted -s -- "${dev}" set 1 raid on
-done
-mdadm --create /dev/md0 --auto md --level=5 --raid-devices=3 /dev/sdb1 /dev/sdc1 /dev/sdd1
-/usr/share/mdadm/mkconf > /etc/mdadm/mdadm.conf
-mkdir -p /mnt/data
-
-# encrypt the raid
-read -p "Do you want to encrypt the raid? [no] "
-if [[ $REPLY =~ ^[Yy]([Ee][Ss])?$ ]]
+read -p "Choose a filesystem (ext4/zfs): [ext4] "
+if [[ $REPLY =~ ^zfs$ ]]
 then
-  echo
-  echo "CAUTION!"
-  echo "========"
-  echo
-  echo "In production you should fill all your drives with random data before creating"
-  echo "the RAID and encrypting it by executing:"
-  echo "$ dd if=/dev/urandom of=/dev/sdX bs=4096"
-  echo
-  read -p "Press any key to continue... " -n1 -s
-  apt-get install -y cryptsetup
-  modprobe dm-crypt
+  apt-add-repository -y ppa:zfs-native/stable
+  apt-get update
+  apt-get install -y ubuntu-zfs
 
-  cryptsetup luksFormat -c aes-xts-plain64 -s 256 -h sha256 -y /dev/md0
-  cryptsetup luksOpen /dev/md0 md0-crypt
-  mkfs.ext4 /dev/mapper/md0-crypt
-  echo "/dev/mapper/md0-crypt /mnt/data ext4 defaults,noauto 0 2" >> /etc/fstab
-  mount /mnt/data
+  for dev in $devs; do
+    parted -s -- "${dev}" mklabel gpt
+  done
+
+  zpool create data -m /mnt/data raidz $devs
+  zfs set compression=lz4 data
+
+  zfs create data/media
+  zfs create data/homes
 else
-  mkfs.ext4 /dev/md0
-  echo "/dev/md0 /mnt/data ext4 defaults 0 2" >> /etc/fstab
-  mount /mnt/data
+  apt-get install -y mdadm
+
+  for dev in $devs; do
+    parted -s -- "${dev}" mklabel gpt
+    parted -a optimal -s -- "${dev}" mkpart primary 2048s -8192s
+    parted -s -- "${dev}" set 1 raid on
+  done
+
+  mdadm --create /dev/md0 --auto md --level=5 --raid-devices=3 /dev/sdb1 /dev/sdc1 /dev/sdd1
+  /usr/share/mdadm/mkconf > /etc/mdadm/mdadm.conf
+  mkdir -p /mnt/data
+
+  # encrypt the raid
+  read -p "Do you want to encrypt the raid? [no] "
+  if [[ $REPLY =~ ^[Yy]([Ee][Ss])?$ ]]
+  then
+    echo
+    echo "CAUTION!"
+    echo "========"
+    echo
+    echo "In production you should fill all your drives with random data before creating"
+    echo "the RAID and encrypting it by executing:"
+    echo "$ dd if=/dev/urandom of=/dev/sdX bs=4096"
+    echo
+    read -p "Press any key to continue... " -n1 -s
+    apt-get install -y cryptsetup
+    modprobe dm-crypt
+
+    cryptsetup luksFormat -c aes-xts-plain64 -s 256 -h sha256 -y /dev/md0
+    cryptsetup luksOpen /dev/md0 md0-crypt
+    mkfs.ext4 /dev/mapper/md0-crypt
+    echo "/dev/mapper/md0-crypt /mnt/data ext4 defaults,noauto 0 2" >> /etc/fstab
+    mount /mnt/data
+  else
+    mkfs.ext4 /dev/md0
+    echo "/dev/md0 /mnt/data ext4 defaults 0 2" >> /etc/fstab
+    mount /mnt/data
+  fi
+
+  mkdir -p /mnt/data/homes
+  mkdir -p /mnt/data/media
 fi
 
-# create data folders
-mkdir -p /mnt/data/homes
+# configure data folder permissions
 chown root:users /mnt/data/media
-
-mkdir -p /mnt/data/media
 chmod -R 2770 /mnt/data/media
 chown root:users /mnt/data/media
 
