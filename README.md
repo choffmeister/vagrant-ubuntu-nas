@@ -21,13 +21,6 @@ $ vagrant ssh
 $ sudo /vagrant/bin/configure.sh
 ~~~
 
-You can create user accounts by:
-
-~~~ bash
-# create a new unix- and samba-user
-$ sudo /vagrant/bin/user-new.sh
-~~~
-
 ## Features
 
 * Simulates a three disk setup combined together to a single drive with [mhddfs](http://manpages.ubuntu.com/manpages/trusty/man1/mhddfs.1.html).

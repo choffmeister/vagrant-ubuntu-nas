@@ -22,7 +22,8 @@ then
   echo
   echo "In production you should fill all your drives with random data before creating"
   echo "the RAID and encrypting it by executing:"
-  echo "  $ dd if=/dev/urandom of=/dev/sdX bs=4096"
+  echo "$ dd if=/dev/urandom of=/dev/sdX bs=4096"
+  echo
   read -p "Press any key to continue... " -n1 -s
   apt-get install -y cryptsetup
   modprobe dm-crypt
@@ -38,13 +39,10 @@ else
   mount /mnt/data
 fi
 
-# create homes folder
+# create data folders
 mkdir -p /mnt/data/homes
-mv /home/* /mnt/data/homes
-echo "/mnt/data/homes /home none bind 0 0" >> /etc/fstab
-mount /home
+chown root:users /mnt/data/media
 
-# create media folder
 mkdir -p /mnt/data/media
 chmod -R 2770 /mnt/data/media
 chown root:users /mnt/data/media
@@ -96,5 +94,13 @@ then
   sleep 3
   ipsec verify
 fi
+
+# create a user
+echo "New username:"
+read USERNAME
+echo "${USERNAME}'s Password:"
+read -s PASSWORD
+echo -e "${PASSWORD}\n${PASSWORD}\nY\n" | adduser --disabled-login --shell /bin/false --gid 100 --gecos "" --home "/mnt/data/homes/${USERNAME}" "${USERNAME}"
+echo -e "${PASSWORD}\n${PASSWORD}\n" | smbpasswd -a "${USERNAME}"
 
 exit 0
