@@ -3,22 +3,30 @@
 # create raid
 apt-get install -y mdadm
 devs="/dev/sdb /dev/sdc /dev/sdd"
-i=1
 for dev in $devs; do
   parted -s -- "${dev}" mklabel gpt
   parted -a optimal -s -- "${dev}" mkpart primary 2048s -8192s
   parted -s -- "${dev}" set 1 raid on
-  i=$((i+1))
 done
 mdadm --create /dev/md0 --auto md --level=5 --raid-devices=3 /dev/sdb1 /dev/sdc1 /dev/sdd1
 /usr/share/mdadm/mkconf > /etc/mdadm/mdadm.conf
 mkdir -p /mnt/data
 
-read -p "Do you want to encrypt the raid (yes/no)? "
+# encrypt the raid
+read -p "Do you want to encrypt the raid? [no] "
 if [[ $REPLY =~ ^[Yy]([Ee][Ss])?$ ]]
 then
+  echo
+  echo "CAUTION!"
+  echo "========"
+  echo
+  echo "In production you should fill all your drives with random data before creating"
+  echo "the RAID and encrypting it by executing:"
+  echo "  $ dd if=/dev/urandom of=/dev/sdX bs=4096"
+  read -p "Press any key to continue... " -n1 -s
   apt-get install -y cryptsetup
   modprobe dm-crypt
+
   cryptsetup luksFormat -c aes-xts-plain64 -s 256 -h sha256 -y /dev/md0
   cryptsetup luksOpen /dev/md0 md0-crypt
   mkfs.ext4 /dev/mapper/md0-crypt
@@ -41,16 +49,13 @@ mkdir -p /mnt/data/media
 chmod -R 2770 /mnt/data/media
 chown root:users /mnt/data/media
 
-read -p "Do you want to install Samba server (yes/no)? "
-if [[ $REPLY =~ ^[Yy]([Ee][Ss])?$ ]]
-then
-  # install samba
-  apt-get install -y samba-common samba
-  cat /vagrant/conf/samba/smb.conf > /etc/samba/smb.conf
-  service samba restart
-fi
+# install samba
+apt-get install -y samba-common samba
+cat /vagrant/conf/samba/smb.conf > /etc/samba/smb.conf
+service samba restart
 
-read -p "Do you want to install Plex Media Server (yes/no)? "
+# install plex media server
+read -p "Do you want to install Plex Media Server? [no] "
 if [[ $REPLY =~ ^[Yy]([Ee][Ss])?$ ]]
 then
   apt-get install -y avahi-daemon avahi-utils
@@ -59,7 +64,8 @@ then
   usermod -aG users plex
 fi
 
-read -p "Do you want to install L2TP/IPSec VPN server (yes/no)? "
+# install l2tp/ipsec vpn server
+read -p "Do you want to install L2TP/IPSec VPN server? [no] "
 if [[ $REPLY =~ ^[Yy]([Ee][Ss])?$ ]]
 then
   SERVER_IP="10.0.23.5" #$(curl --silent http://ip.mtak.nl)
